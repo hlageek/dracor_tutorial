@@ -1,0 +1,62 @@
+---
+title: "Gentle Introduction to *R* by DraCor Walkthrough"
+format: html
+---
+
+::: {.panel-tabset}
+
+## DraCor
+
+<iframe src="https://dracor.org/" width="100%" height="500px">
+</iframe>
+
+## DraCor R library
+
+<iframe src="https://github.com/dracor-org/rdracor" width="100%" height="500px">
+</iframe>
+
+:::
+
+---
+## Setup {.tabset}
+
+### Command
+
+```{r}
+library(rdracor)
+library(tidyverse)
+```
+
+### Explanation
+
+We loaded libraries that provide specific functions that can be used in our project. The base `R` language is made of general purpose functions and objects. Libraries build upon these to provide
+
+#### Advantages of using libraries
+
+- they simplify things
+- they are likely to be well-tested (unlike your code)
+
+:::
+
+## First call to DraCor API
+
+
+```{r}
+corpora <- get_dracor_meta()
+class(corpora)
+colnames(corpora)
+```
+
+
+
+```{r}
+shake_corpus <- get_dracor(corpus = "shake")
+head(shake_corpus) %>% 
+  knitr::kable(format = "html")
+```
+
+```{r}
+
+tempest_text <- rdracor::get_play_spoken_text(corpus = "shake", play = shake_corpus$playName[1])
+#head(tempest)
+```
