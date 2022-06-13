@@ -1,45 +1,62 @@
 ---
 title: "Gentle Introduction to *R* by DraCor Walkthrough"
-format: html
+output: html_document
 ---
 
-::: {.panel-tabset}
+## DraCor {.tabset}
 
-## DraCor
+### DraCor website
 
-<iframe src="https://dracor.org/" width="100%" height="500px">
+<https://dracor.org>
+
+<iframe src="https://dracor.org" width="100%" height="500px">
+
 </iframe>
 
-## DraCor R library
+### DraCor R library
+
+<https://github.com/dracor-org/rdracor>
 
 <iframe src="https://github.com/dracor-org/rdracor" width="100%" height="500px">
+
 </iframe>
 
-:::
-
----
 ## Setup {.tabset}
 
 ### Command
 
-```{r}
+```{r message=FALSE, warning=FALSE}
+# install.packages("remotes")
+# remotes::install_github("Pozdniakov/rdracor")
 library(rdracor)
+# install.packages("tidyverse")
 library(tidyverse)
 ```
 
 ### Explanation
 
-We loaded libraries that provide specific functions that can be used in our project. The base `R` language is made of general purpose functions and objects. Libraries build upon these to provide
+```{r eval=FALSE}
+# install.packages("remotes")
+# remotes::install_github("Pozdniakov/rdracor")
+library(rdracor)
+# install.packages("tidyverse")
+library(tidyverse)
+```
 
-#### Advantages of using libraries
+We loaded **libraries** that provide library-specific **functions** that can be used in our project and that are not available in what is called the base `R`.
 
-- they simplify things
-- they are likely to be well-tested (unlike your code)
+Before loading libraries, you must install the packages that contain them (installation is a one-time thing, loading needs to be done once per each coding session).
 
-:::
+### Advantages of using libraries
 
-## First call to DraCor API
+The base `R` language is made of general purpose functions and objects. **Libraries** build upon the base `R` functions to provide an extra set of functions with some advantages:
 
+-   they simplify things (you can use one library function instead of writing many lines of code that achieve the same goal)
+-   they are likely to be well-tested (unlike your code)
+
+## First call to DraCor API {.tabset}
+
+### Command
 
 ```{r}
 corpora <- get_dracor_meta()
@@ -47,7 +64,80 @@ class(corpora)
 colnames(corpora)
 ```
 
+### Explanation
 
+```{r eval=FALSE}
+corpora <- get_dracor_meta()
+class(corpora)
+colnames(corpora)
+```
+
+-   we create an object called `corpora` to which we assign the result of the function `get_dracor_meta()`
+-   we check what kind of object the result is (what is its class)
+-   the result is a table-like object of class `data.frame` and we can inspect the names of the table columns by calling the function `colnames()`
+
+### Look inside the metadata
+
+```{r echo=FALSE}
+corpora %>% 
+  DT::datatable()
+```
+
+## Interact with the data
+
+### Command
+
+```{r}
+corpora %>% 
+  pull(name)
+```
+
+### Explanation
+
+```{r eval=FALSE}
+corpora %>% 
+  pull(title)
+```
+
+-   `pull()` function takes as it 1st argument an object of class `data.frame` (tabular data structure) and a column name as its 2nd argument - then it "pulls" the specified column out from the `data.frame`
+
+-   we "pipe" the object `corpora` into `pull()` function with the `%>%` pipe operator
+
+-   `corpora %>% pull(`name) is equivalent to pull(corpora, name)
+
+```{r}
+pull(corpora, title)
+```
+
+-   the advantage of piping is that the code reads as a sequence of transformation steps
+
+## Explore the data {.tabset}
+
+### Command
+
+```{r}
+corpora %>% 
+  ggplot(aes(title, plays)) +
+  geom_col() +
+  coord_flip()
+```
+
+### Explanation
+
+```{r eval=FALSE}
+corpora %>% 
+  ggplot(aes(x = title, y = plays)) +
+  geom_col() +
+  coord_flip()
+```
+
+-   we will use the `ggplot2` data visualization library that is included in the `tidyverse` collection
+
+-   the main function in the `ggplot2` library is called `ggplot()` and takes as its 1st argument a data object of class `data.frame` (here we supply the argument with the help of the pipe) and the 2nd argument is a function aes() which maps specified variables (column names) onto visualization parameters - most commonly the axes of the 2D charts
+
+> Take the table called `corpora` and turn it into a plot. Map the data values from the column `title` onto X-axis and the data values from the column `plays` onto Y-axis. Add (`+`) a visualization layer based on column geometry (constructed by `geom_col()` function). Add another visualization layer that flips the coordinates, so that X becomes Y and Y becomes X (this is simply for better readability of text displayed on the axes).
+
+## Shake
 
 ```{r}
 shake_corpus <- get_dracor(corpus = "shake")
@@ -60,3 +150,7 @@ head(shake_corpus) %>%
 tempest_text <- rdracor::get_play_spoken_text(corpus = "shake", play = shake_corpus$playName[1])
 #head(tempest)
 ```
+
+## This presentation is a lie!
+
+It makes things seem simple.... write a few lines of code and
