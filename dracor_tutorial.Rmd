@@ -1,33 +1,58 @@
 ---
 title: "Gentle Introduction to *R* by DraCor Walkthrough"
-output: html_document
+output:
+  xaringan::moon_reader:
+    css: ["default", "metropolis", "metropolis-fonts", "my-theme.css"]
+    seal: false
+    self_contained: false
+    nature:
+     ratio: "16:9"
+     slideNumberFormat: '%current%/%total%'
+     countIncrementalSlides: false
+     highlightSpans: true 
+     navigation:
+        scroll: false
 ---
 
-<style>
-div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+<style type="text/css">
+ul.panel-tabs {
+    font-size: 80%;
+    margin: 0px
+}
 </style>
 
-## DraCor {.tabset}
+```{r xaringan-panelset, echo=FALSE}
+library(xaringanExtra)
+xaringanExtra::use_panelset()
+```
 
-### DraCor website
+.panelset[
+
+.panel[.panel-name[DraCor website]
+
 
 <https://dracor.org>
 
-<iframe src="https://dracor.org" width="100%" height="500px">
+<iframe src="https://dracor.org" width="100%" height="400px">
 
 </iframe>
+]
+.panel[.panel-name[DraCor R library]
 
-### DraCor R library
 
 <https://github.com/dracor-org/rdracor>
 
-<iframe src="https://github.com/dracor-org/rdracor" width="100%" height="500px">
+<iframe src="https://github.com/dracor-org/rdracor" width="100%" height="400px">
 
 </iframe>
+]
+]
+---
 
-## Setup {.tabset}
+# Setup 
+.panelset[
+.panel[.panel-name[Command]
 
-### Command
 
 ```{r message=FALSE, warning=FALSE}
 # install.packages("remotes")
@@ -37,7 +62,9 @@ library(rdracor)
 library(tidyverse)
 ```
 
-### Explanation
+]
+.panel[.panel-name[Explanation]
+
 
 ```{r eval=FALSE}
 # install.packages("remotes")
@@ -50,25 +77,37 @@ library(tidyverse)
 We loaded **libraries** that provide library-specific **functions** that can be used in our project and that are not available in what is called the base `R`.
 
 Before loading libraries, you must install the packages that contain them (installation is a one-time thing, loading needs to be done once per each coding session).
+]
 
-### Advantages of using libraries
+.panel[.panel-name[Advantages of using libraries]
 
 The base `R` language is made of general purpose functions and objects. **Libraries** build upon the base `R` functions to provide an extra set of functions with some advantages:
 
 -   they simplify things (you can use one library function instead of writing many lines of code that achieve the same goal)
 -   they are likely to be well-tested (unlike your code)
+]
+]
+---
 
-## First call to DraCor API {.tabset}
+# First call to DraCor API 
 
-### Command
+.panelset[
+
+.panel[.panel-name[Command]
+
 
 ```{r corpora, cache=TRUE}
 corpora <- get_dracor_meta() 
+```
+
+```{r}
 class(corpora) 
 colnames(corpora)
 ```
 
-### Explanation
+]
+.panel[.panel-name[Explanation]
+
 
 ```{r eval=FALSE}
 corpora <- get_dracor_meta()
@@ -79,24 +118,35 @@ colnames(corpora)
 -   we create an object called `corpora` to which we assign the result of the function `get_dracor_meta()`
 -   we check what kind of object the result is (what is its class)
 -   the result is a table-like object of class `data.frame` and we can inspect the names of the table columns by calling the function `colnames()`
+]
 
-### Look inside the metadata
+.panel[.panel-name[Look inside the metadata]
 
+.font50[
 ```{r echo=FALSE}
 corpora %>% 
-  DT::datatable(options = list(pageLength = 5, scrollX=T))
+  DT::datatable()
 ```
+]
+]
+]
 
-## Interact with the data  {.tabset}
+---
 
-### Command
+# Interact with the data  
+
+.panelset[
+
+.panel[.panel-name[Command] 
 
 ```{r}
 corpora %>% 
   pull(title)
 ```
+]
 
-### Explanation
+.panel[.panel-name[Explanation] 
+
 
 ```{r eval=FALSE}
 corpora %>% 
@@ -107,25 +157,41 @@ corpora %>%
 
 -   we "pipe" the object `corpora` into `pull()` function with the `%>%` pipe operator
 
--   `corpora %>% pull(`name) is equivalent to `pull(corpora, name)`:
+-   the advantage of piping is that the code reads as a sequence of transformation steps
 
+-   `corpora %>% pull(title)` is equivalent to `pull(corpora, title)`:
+.font80[
 ```{r}
 pull(corpora, title)
 ```
+]
 
--   the advantage of piping is that the code reads as a sequence of transformation steps
+]
+]
+---
+# Explore the data 
 
-## Explore the data {.tabset}
+.panelset[
 
-### Command
-
-```{r}
+.panel[.panel-name[Command] 
+.pull-left[
+```{r eval=FALSE}
 corpora %>% 
   ggplot(aes(title, plays)) +
   geom_col() 
 ```
+]
+.pull-right[
+```{r echo=FALSE}
+corpora %>% 
+  ggplot(aes(title, plays)) +
+  geom_col() 
+```
+]
+]
 
-### Explanation
+.panel[.panel-name[Explanation] 
+
 
 ```{r eval=FALSE}
 corpora %>% 
@@ -139,20 +205,33 @@ corpora %>%
 
 > Take the table called `corpora` and turn it into a plot. Map the data values from the column `title` onto X-axis and the data values from the column `plays` onto Y-axis. Add (`+`) a visualization layer based on column geometry (constructed by `geom_col()` function). 
 
-## Make the axes readable {.tabset}
+]
+]
+---
+# Make the axes readable 
 
-### Command
+.panelset[
 
-```{r}
+.panel[.panel-name[Command] 
+.pull-left[
+```{r eval=FALSE}
 corpora %>% 
   ggplot(aes(x = title, y = plays)) +
   geom_col() +
   coord_flip()
 ```
+]
 
-### Explanation
-
--   `coord_flip()` function adds another layer to the visualization
+.pull-right[
+```{r echo=FALSE}
+corpora %>% 
+  ggplot(aes(x = title, y = plays)) +
+  geom_col() +
+  coord_flip()
+```
+]
+]
+.panel[.panel-name[Explanation] 
 
 ```{r eval=FALSE}
 corpora %>% 
@@ -161,23 +240,53 @@ corpora %>%
   coord_flip()
 ```
 
+-   `coord_flip()` function adds another layer to the visualization
+
 > Add another visualization layer that flips the coordinates, so that X becomes Y and Y becomes X (this is simply for better readability of text displayed on the axes).
 
-## Who writes the most? {.tabset}
+]
+]
 
-The data contains the most plays by French authors. But does it mean that they write the most? Could this be just an artifact of the data and how it was created? Perhaps the team preparing French data was the largest and could process most plays. And most plays from the ancient Greece have not even survived until today. So asking which nation has the most theatrical plays is not a good question to ask of this dataset. However, we can rephrase the question to make it more appropriate: on average, which plays are the longest in terms of their text?
+---
 
-### Command
+# Who writes the most? 
 
-```{r}
+.panelset[
+
+.panel[.panel-name[Consider] 
+
+The data contains the most plays by French authors. But does it mean that they write the most? Could this be just an artifact of the data and how it was created? 
+-   Perhaps the team preparing the French corpus was the largest and could process most plays. 
+-   And many plays from the ancient Greece most likely have not even survived until today. 
+-   So asking which nation has the most theatrical plays is not a good question to ask of this dataset. 
+-   However, we can rephrase the question to make it more appropriate: on average, which plays are the longest in terms of their text content?
+
+]
+
+.panel[.panel-name[Command] 
+
+.pull-left[
+```{r eval=FALSE}
 corpora %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
   ggplot(aes(x = title, y = normalized_text)) +
   geom_col() +
   coord_flip()
 ```
+]
+.pull-right[
 
-### Explanation
+```{r echo=FALSE}
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+]
+]
+
+.panel[.panel-name[Explanation] 
 
 -   create a new variable by mutating the existing ones using the `mutate()` function
 -   obtain `normalized_text` through dividing the variable ` wordcount.text` that contains word count by the variable `plays` that contains the number of plays
@@ -190,13 +299,44 @@ corpora %>%
   geom_col() +
   coord_flip()
 ```
+]
+]
+
+---
+
+# Let's rank the data properly
+
+.panelset[
+
+.panel[.panel-name[Command] 
+
+.pull-left[
+```{r eval=FALSE}
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  `mutate(title = fct_reorder(title, 
+                              normalized_text)) %>%`
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+]
+.pull-right[
+```{r echo=FALSE}
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  mutate(title = fct_reorder(title, 
+                             normalized_text)) %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+]
+]
+.panel[.panel-name[Explanation] 
 
 
-## Let's rank the data properly {.tabset}
-
-### Command
-
-```{r}
+```{r eval=FALSE}
 corpora %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
   mutate(title = fct_reorder(title, normalized_text)) %>% 
@@ -204,18 +344,9 @@ corpora %>%
   geom_col() +
   coord_flip()
 ```
-
-### Explanation
-
-```{r }
-corpora %>% 
-  mutate(normalized_text = wordcount.text/plays) %>% 
-  mutate(title = fct_reorder(title, normalized_text)) %>% 
-  ggplot(aes(x = title, y = normalized_text)) +
-  geom_col() +
-  coord_flip()
-```
-
+]
+]
+---
 ## Shake
 
 ```{r eval=FALSE}
