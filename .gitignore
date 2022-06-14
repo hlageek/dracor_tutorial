@@ -5,3 +5,6 @@
 .Rprofile
 dracor_tutorial.html
 dracor_tutorial.nb.html
+dracor_tutorial_files/
+dracor_tutorial_cache/
+

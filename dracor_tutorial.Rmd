@@ -3,6 +3,10 @@ title: "Gentle Introduction to *R* by DraCor Walkthrough"
 output: html_document
 ---
 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+
 ## DraCor {.tabset}
 
 ### DraCor website
@@ -58,9 +62,9 @@ The base `R` language is made of general purpose functions and objects. **Librar
 
 ### Command
 
-```{r}
-corpora <- get_dracor_meta()
-class(corpora)
+```{r corpora, cache=TRUE}
+corpora <- get_dracor_meta() 
+class(corpora) 
 colnames(corpora)
 ```
 
@@ -80,16 +84,16 @@ colnames(corpora)
 
 ```{r echo=FALSE}
 corpora %>% 
-  DT::datatable()
+  DT::datatable(options = list(pageLength = 5, scrollX=T))
 ```
 
-## Interact with the data
+## Interact with the data  {.tabset}
 
 ### Command
 
 ```{r}
 corpora %>% 
-  pull(name)
+  pull(title)
 ```
 
 ### Explanation
@@ -103,7 +107,7 @@ corpora %>%
 
 -   we "pipe" the object `corpora` into `pull()` function with the `%>%` pipe operator
 
--   `corpora %>% pull(`name) is equivalent to pull(corpora, name)
+-   `corpora %>% pull(`name) is equivalent to `pull(corpora, name)`:
 
 ```{r}
 pull(corpora, title)
@@ -118,11 +122,37 @@ pull(corpora, title)
 ```{r}
 corpora %>% 
   ggplot(aes(title, plays)) +
+  geom_col() 
+```
+
+### Explanation
+
+```{r eval=FALSE}
+corpora %>% 
+  ggplot(aes(x = title, y = plays)) +
+  geom_col() 
+```
+
+-   we will use the `ggplot2` data visualization library that is included in the `tidyverse` collection
+
+-   the main function in the `ggplot2` library is called `ggplot()` and takes as its 1st argument a data object of class `data.frame` (here we supply the argument with the help of the pipe) and the 2nd argument is a function `aes()` which maps specified variables (column names) onto visualization parameters - most commonly the axes of the 2D charts
+
+> Take the table called `corpora` and turn it into a plot. Map the data values from the column `title` onto X-axis and the data values from the column `plays` onto Y-axis. Add (`+`) a visualization layer based on column geometry (constructed by `geom_col()` function). 
+
+## Make the axes readable {.tabset}
+
+### Command
+
+```{r}
+corpora %>% 
+  ggplot(aes(x = title, y = plays)) +
   geom_col() +
   coord_flip()
 ```
 
 ### Explanation
+
+-   `coord_flip()` function adds another layer to the visualization
 
 ```{r eval=FALSE}
 corpora %>% 
@@ -131,21 +161,70 @@ corpora %>%
   coord_flip()
 ```
 
--   we will use the `ggplot2` data visualization library that is included in the `tidyverse` collection
+> Add another visualization layer that flips the coordinates, so that X becomes Y and Y becomes X (this is simply for better readability of text displayed on the axes).
 
--   the main function in the `ggplot2` library is called `ggplot()` and takes as its 1st argument a data object of class `data.frame` (here we supply the argument with the help of the pipe) and the 2nd argument is a function aes() which maps specified variables (column names) onto visualization parameters - most commonly the axes of the 2D charts
+## Who writes the most? {.tabset}
 
-> Take the table called `corpora` and turn it into a plot. Map the data values from the column `title` onto X-axis and the data values from the column `plays` onto Y-axis. Add (`+`) a visualization layer based on column geometry (constructed by `geom_col()` function). Add another visualization layer that flips the coordinates, so that X becomes Y and Y becomes X (this is simply for better readability of text displayed on the axes).
+The data contains the most plays by French authors. But does it mean that they write the most? Could this be just an artifact of the data and how it was created? Perhaps the team preparing French data was the largest and could process most plays. And most plays from the ancient Greece have not even survived until today. So asking which nation has the most theatrical plays is not a good question to ask of this dataset. However, we can rephrase the question to make it more appropriate: on average, which plays are the longest in terms of their text?
+
+### Command
+
+```{r}
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+
+### Explanation
+
+-   create a new variable by mutating the existing ones using the `mutate()` function
+-   obtain `normalized_text` through dividing the variable ` wordcount.text` that contains word count by the variable `plays` that contains the number of plays
+-   project the new variable on `normalized_text` Y-axis
+
+```{r eval=FALSE}
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+
+
+## Let's rank the data properly {.tabset}
+
+### Command
+
+```{r}
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  mutate(title = fct_reorder(title, normalized_text)) %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+
+### Explanation
+
+```{r }
+corpora %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  mutate(title = fct_reorder(title, normalized_text)) %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
 
 ## Shake
 
-```{r}
+```{r eval=FALSE}
 shake_corpus <- get_dracor(corpus = "shake")
 head(shake_corpus) %>% 
   knitr::kable(format = "html")
 ```
 
-```{r}
+```{r eval=FALSE}
 
 tempest_text <- rdracor::get_play_spoken_text(corpus = "shake", play = shake_corpus$playName[1])
 #head(tempest)
