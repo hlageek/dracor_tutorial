@@ -17,7 +17,7 @@ output:
 <style type="text/css">
 ul.panel-tabs {
     font-size: 80%;
-    margin: 0px
+    margin-top: -20px
 }
 </style>
 
@@ -25,6 +25,51 @@ ul.panel-tabs {
 library(xaringanExtra)
 xaringanExtra::use_panelset()
 ```
+
+# The perfect audience
+
+.pull-left[
+Who can benefit the most from this lecture?
+
+
+Me!
+
+
+More specifically, myself a few years ago:
+
+-   effectively zero experience with coding  
+-   no idea where/how to start coding  
+-   frankly, a bit scared of the whole coding business  
+-   background in the humanities  
+
+
+
+-   motivated to learn  
+
+]
+
+.pull-right[
+What kind of benefits can you expect?
+
+-   **NOT** learning to code
+-   **NOT** understanding computer science concepts
+
+<hr>
+
+-   getting a feeling for what coding looks like
+-   removal of the initial barriers on your own path to computational analyses
+-   recognition of advantages of coding over point-and-click software
+-   appreciation of (clean and documented) data
+-   awareness of the need to "munge" the data 
+
+
+]
+
+
+
+---
+
+
 # DraCor - dataset of theatrical plays
 .panelset[
 
@@ -48,6 +93,7 @@ xaringanExtra::use_panelset()
 `rdracor` is a library dedicated to interaction with DraCore data from R programming language 
 ]
 ]
+
 ---
 
 # Setup 
@@ -78,6 +124,10 @@ library(tidyverse)
 We loaded **libraries** that provide library-specific **functions** that can be used in our project and that are not available in what is called the base `R`.
 
 Before loading libraries, you must install the packages that contain them (installation is a one-time thing, loading needs to be done once per each coding session).
+
+-   notice the hash `#` symbol - `R` uses it to signify comments, i.e. any line of text that should be ignored when you run the script
+-   use comments to remind yourself of what you intended to express by the code
+
 ]
 
 .panel[.panel-name[Advantages of using libraries]
@@ -86,8 +136,12 @@ The base `R` language is made of general purpose functions and objects. **Librar
 
 -   they simplify things (you can use one library function instead of writing many lines of code that achieve the same goal)
 -   they are likely to be well-tested (unlike your code)
+
+
+
 ]
 ]
+
 ---
 
 # First call to DraCor API 
@@ -97,13 +151,13 @@ The base `R` language is made of general purpose functions and objects. **Librar
 .panel[.panel-name[Command]
 
 
-```{r corpora, cache=TRUE}
-corpora <- get_dracor_meta() 
+```{r dracor_metadata, cache=TRUE}
+dracor_metadata <- get_dracor_meta() 
 ```
 
 ```{r}
-class(corpora) 
-colnames(corpora)
+class(dracor_metadata) 
+colnames(dracor_metadata)
 ```
 
 ]
@@ -111,12 +165,12 @@ colnames(corpora)
 
 
 ```{r eval=FALSE}
-corpora <- get_dracor_meta()
-class(corpora)
-colnames(corpora)
+dracor_metadata <- get_dracor_meta()
+class(dracor_metadata)
+colnames(dracor_metadata)
 ```
 
--   we create an object called `corpora` to which we assign the result of the function `get_dracor_meta()`
+-   we create an object called `dracor_metadata` to which we assign the result of the function `get_dracor_meta()`
 -   we check what kind of object the result is (what is its class)
 -   the result is a table-like object of class `data.frame` and we can inspect the names of the table columns by calling the function `colnames()`
 ]
@@ -125,8 +179,16 @@ colnames(corpora)
 
 .font50[
 ```{r echo=FALSE}
-corpora %>% 
-  DT::datatable()
+dracor_metadata %>% 
+  DT::datatable(
+    rownames = FALSE,
+    options = list(
+  autoWidth = TRUE,
+  scrollX = TRUE,
+  scrollY = TRUE,
+  paging = TRUE,
+  lengthMenu = c(3, 4, 5)
+  ))
 ```
 ]
 ]
@@ -141,7 +203,7 @@ corpora %>%
 .panel[.panel-name[Command] 
 
 ```{r}
-corpora %>% 
+dracor_metadata %>% 
   pull(title)
 ```
 ]
@@ -150,25 +212,26 @@ corpora %>%
 
 
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   pull(title)
 ```
 
 -   `pull()` function takes as it 1st argument an object of class `data.frame` (tabular data structure) and a column name as its 2nd argument - then it "pulls" the specified column out from the `data.frame`
 
--   we "pipe" the object `corpora` into `pull()` function with the `%>%` pipe operator
+-   we "pipe" the object `dracor_metadata` into `pull()` function with the `%>%` pipe operator
 
 -   the advantage of piping is that the code reads as a sequence of transformation steps
 
--   `corpora %>% pull(title)` is equivalent to `pull(corpora, title)`:
+-   `dracor_metadata %>% pull(title)` is equivalent to `pull(dracor_metadata, title)`:
 .font80[
 ```{r}
-pull(corpora, title)
+pull(dracor_metadata, title)
 ```
 ]
 
 ]
 ]
+
 ---
 # Explore the data 
 
@@ -177,14 +240,14 @@ pull(corpora, title)
 .panel[.panel-name[Command] 
 .pull-left[
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   ggplot(aes(title, plays)) +
   geom_col() 
 ```
 ]
 .pull-right[
 ```{r echo=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   ggplot(aes(title, plays)) +
   geom_col() 
 ```
@@ -195,7 +258,7 @@ corpora %>%
 
 
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   ggplot(aes(x = title, y = plays)) +
   geom_col() 
 ```
@@ -204,10 +267,11 @@ corpora %>%
 
 -   the main function in the `ggplot2` library is called `ggplot()` and takes as its 1st argument a data object of class `data.frame` (here we supply the argument with the help of the pipe) and the 2nd argument is a function `aes()` which maps specified variables (column names) onto visualization parameters - most commonly the axes of the 2D charts
 
-> Take the table called `corpora` and turn it into a plot. Map the data values from the column `title` onto X-axis and the data values from the column `plays` onto Y-axis. Add (`+`) a visualization layer based on column geometry (constructed by `geom_col()` function). 
+> Take the table called `dracor_metadata` and turn it into a plot. Map the data values from the column `title` onto X-axis and the data values from the column `plays` onto Y-axis. Add (`+`) a visualization layer based on column geometry (constructed by `geom_col()` function). 
 
 ]
 ]
+
 ---
 # Make the axes readable 
 
@@ -216,16 +280,16 @@ corpora %>%
 .panel[.panel-name[Command] 
 .pull-left[
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   ggplot(aes(x = title, y = plays)) +
   geom_col() +
-  coord_flip()
+  `coord_flip()`
 ```
 ]
 
 .pull-right[
 ```{r echo=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   ggplot(aes(x = title, y = plays)) +
   geom_col() +
   coord_flip()
@@ -235,7 +299,7 @@ corpora %>%
 .panel[.panel-name[Explanation] 
 
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   ggplot(aes(x = title, y = plays)) +
   geom_col() +
   coord_flip()
@@ -250,7 +314,7 @@ corpora %>%
 
 ---
 
-# Who writes the most? 
+# Which country has the most theatrical plays? 
 
 .panelset[
 
@@ -268,9 +332,9 @@ The data contains the most plays by French authors. But does it mean that they w
 
 .pull-left[
 ```{r eval=FALSE}
-corpora %>% 
-  mutate(normalized_text = wordcount.text/plays) %>% 
-  ggplot(aes(x = title, y = normalized_text)) +
+dracor_metadata %>% 
+  `mutate(normalized_text = wordcount.text/plays)` %>% 
+  ggplot(aes(x = title, y = `normalized_text`)) +
   geom_col() +
   coord_flip()
 ```
@@ -278,7 +342,7 @@ corpora %>%
 .pull-right[
 
 ```{r echo=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
   ggplot(aes(x = title, y = normalized_text)) +
   geom_col() +
@@ -289,17 +353,19 @@ corpora %>%
 
 .panel[.panel-name[Explanation] 
 
--   create a new variable by mutating the existing ones using the `mutate()` function
--   obtain `normalized_text` through dividing the variable ` wordcount.text` that contains word count by the variable `plays` that contains the number of plays
--   project the new variable on `normalized_text` Y-axis
-
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
   ggplot(aes(x = title, y = normalized_text)) +
   geom_col() +
   coord_flip()
 ```
+
+-   create a new variable by mutating the existing ones using the `mutate()` function
+-   obtain `normalized_text` through dividing the variable ` wordcount.text` that contains word count by the variable `plays` that contains the number of plays
+-   project the new variable on `normalized_text` Y-axis
+
+
 ]
 ]
 
@@ -313,10 +379,9 @@ corpora %>%
 
 .pull-left[
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
-  `mutate(title = fct_reorder(title, 
-                              normalized_text)) %>%`
+  `mutate(title = fct_reorder(title, normalized_text)) %>%`
   ggplot(aes(x = title, y = normalized_text)) +
   geom_col() +
   coord_flip()
@@ -324,7 +389,7 @@ corpora %>%
 ]
 .pull-right[
 ```{r echo=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
   mutate(title = fct_reorder(title, 
                              normalized_text)) %>% 
@@ -338,15 +403,91 @@ corpora %>%
 
 
 ```{r eval=FALSE}
-corpora %>% 
+dracor_metadata %>% 
   mutate(normalized_text = wordcount.text/plays) %>% 
-  mutate(title = fct_reorder(title, normalized_text)) %>% 
+  `mutate(title = fct_reorder(title, normalized_text))` %>% 
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+
+-   we again mutate the `dracor_metadata` object
+-   this time, we convert the variable `title` into a factor (before, it was just a text string)
+-   factors, or categories, are textual labels that can be attached to observations
+  - for example, if you interview a sample of 100 people and record their gender as a binary category - `man` or `woman` - this information will not be treated as 100 text strings, but as 100 instances of 2 categories
+  - categories can sometimes be ordered, for example, you can classify the highest attained education level as `primary`, `secondary`, `tertiary`
+  - the ordering of categories is what we use here to order the national copora by their normalized word count
+- the function `fct_reorder()` does just that - it converts strings into factors puts them into specified order
+
+]
+]
+
+---
+
+# Remove individuals
+
+.panelset[
+
+.panel[.panel-name[Command] 
+
+.pull-left[
+```{r eval=FALSE}
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  `filter(!name %in% authors) %>%` 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  mutate(title = fct_reorder(title, normalized_text)) %>%
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+]
+.pull-right[
+```{r echo=FALSE}
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  mutate(title = fct_reorder(title, normalized_text)) %>%
   ggplot(aes(x = title, y = normalized_text)) +
   geom_col() +
   coord_flip()
 ```
 ]
 ]
+.panel[.panel-name[Explanation] 
+
+
+```{r eval=FALSE}
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(normalized_text = wordcount.text/plays) %>% 
+  mutate(title = fct_reorder(title, normalized_text)) %>%
+  ggplot(aes(x = title, y = normalized_text)) +
+  geom_col() +
+  coord_flip()
+```
+
+-   we combine three text strings that match the names of the copora into one vector
+-   than we filter the dataset using the `filter()` function
+-   the `%in%` operator finds an intersection between two object
+-   the `!` negates the expression
+
+> Combine the text strings into one object called `authors`. Take the `dracor_metadata` object and keep only those lines, where the variable `name` does not overlap with the object `authors`.
+
+]
+
+.panel[.panel-name[Consider] 
+
+Although the result of our code is a visualization, we have not been changing the visualization! **When you need to visualize data in a desired form, you must change the data.**
+
+]
+]
+
 ---
 ## Shake
 
