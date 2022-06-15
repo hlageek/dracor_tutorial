@@ -1,5 +1,5 @@
 ---
-title: "Gentle Introduction to *R* by DraCor Walkthrough"
+title: "From Data to Insights with Open Science Tools: Exploration of Theatrical Plays with DraCor and R"
 output:
   xaringan::moon_reader:
     css: ["default", "metropolis", "metropolis-fonts", "my-theme.css"]
@@ -25,7 +25,7 @@ ul.panel-tabs {
 library(xaringanExtra)
 xaringanExtra::use_panelset()
 ```
-
+# DraCor - dataset of theatrical plays
 .panelset[
 
 .panel[.panel-name[DraCor website]
@@ -39,12 +39,13 @@ xaringanExtra::use_panelset()
 ]
 .panel[.panel-name[DraCor R library]
 
+<img src="https://github.com/Pozdniakov/rdracor/raw/main/man/figures/logo.png">
 
-<https://github.com/dracor-org/rdracor>
+[https://github.com/dracor-org/rdracor](https://github.com/dracor-org/rdracor)
 
-<iframe src="https://github.com/dracor-org/rdracor" width="100%" height="400px">
+[https://rdrr.io/github/Pozdniakov/rdracor/man/](https://rdrr.io/github/Pozdniakov/rdracor/man/)
 
-</iframe>
+`rdracor` is a library dedicated to interaction with DraCore data from R programming language 
 ]
 ]
 ---
