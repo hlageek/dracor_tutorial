@@ -21,7 +21,7 @@ ul.panel-tabs {
 }
 </style>
 
-```{r xaringan-panelset, echo=FALSE}
+```{r xaringan-panelset, echo=FALSE, message=FALSE, warning=FALSE}
 library(xaringanExtra)
 xaringanExtra::use_panelset()
 ```
