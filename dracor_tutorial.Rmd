@@ -26,6 +26,23 @@ library(xaringanExtra)
 xaringanExtra::use_panelset()
 ```
 
+# Exploration of Theatrical Plays with DraCor and R 
+
+## From Data to Insights with Open Science Tools
+[https://hlageek.github.io/reports/ufal2022](https://hlageek.github.io/reports/ufal2022)
+<br><br><br><br><br><br><br><br><br><br><br>
+Radim Hladík
+
+Institute of Philosophy of the Czech Academy of Sciences
+
+hladik@flu.cas.cz
+
+<br>
+
+
+
+---
+
 # The perfect audience
 
 .pull-left[
@@ -66,6 +83,24 @@ What kind of benefits can you expect?
 ]
 
 
+
+---
+
+# R
+
+## R
+- programming language with focus on statics
+- widely used by data analysts in academia and private sector, obscure otherwise
+- free and open source
+- to teach your computer to understand R language, you must install it on your operating system first (although if you work with Python instead, that comes pre-installed on Macs)
+- [https://www.r-project.org/](https://www.r-project.org/)
+  
+## RStudio
+- IDE - integrated development environment designed for the R language
+- free and open source
+- not a requirement, just makes the interaction with R easier
+- [RStudio](https://www.rstudio.com/products/rstudio/download/)
+- cloud version without a need to install anything [https://rstudio.cloud/](https://rstudio.cloud/)
 
 ---
 
@@ -474,7 +509,7 @@ dracor_metadata %>%
 
 -   we combine three text strings that match the names of the copora into one vector
 -   than we filter the dataset using the `filter()` function
--   the `%in%` operator finds an intersection between two object
+-   the `%in%` operator finds an intersection between two objects
 -   the `!` negates the expression
 
 > Combine the text strings into one object called `authors`. Take the `dracor_metadata` object and keep only those lines, where the variable `name` does not overlap with the object `authors`.
@@ -489,20 +524,150 @@ Although the result of our code is a visualization, we have not been changing th
 ]
 
 ---
-## Shake
+
+# Gender perspective
+
+.panelset[
+
+.panel[.panel-name[Command] 
+
+.pull-left[
+```{r eval=FALSE}
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  `mutate(percentage_female = female/(male+female)) %>% `
+  mutate(title = fct_reorder(title, percentage_female)) %>%
+  ggplot(aes(x = title, y = percentage_female)) +
+  geom_col() +
+  coord_flip()
+```
+]
+.pull-right[
+```{r echo=FALSE}
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(percentage_female = female/(male+female)) %>% 
+  mutate(title = fct_reorder(title, percentage_female)) %>%
+  ggplot(aes(x = title, y = percentage_female)) +
+  geom_col() +
+  coord_flip()
+```
+]
+]
+
+.panel[.panel-name[Explanation] 
+
 
 ```{r eval=FALSE}
-shake_corpus <- get_dracor(corpus = "shake")
-head(shake_corpus) %>% 
-  knitr::kable(format = "html")
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(percentage_female = female/(male+female)) %>% 
+  mutate(title = fct_reorder(title, percentage_female)) %>%
+  ggplot(aes(x = title, y = percentage_female)) +
+  geom_col() +
+  coord_flip()
 ```
 
+-  calculate the percentage of female characters from existing variables `male` and `female`
+-   make sure to plot the new variable `percentage_female`
+
+]
+
+]
+
+---
+
+
+# Add some color
+
+.panelset[
+
+.panel[.panel-name[Command] 
+
+.pull-left[
 ```{r eval=FALSE}
+authors <- c("shake", "gersh", "cal")
 
-tempest_text <- rdracor::get_play_spoken_text(corpus = "shake", play = shake_corpus$playName[1])
-#head(tempest)
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(percentage_female = female/(male+female)) %>%
+  mutate(title = fct_reorder(title, percentage_female)) %>% 
+  select(title, male,female) %>% 
+  pivot_longer(cols = c(male, female), 
+               names_to = "gender", 
+               values_to = "no_of_characters") %>% 
+  ggplot(aes(x = title, 
+             y = no_of_characters,
+             fill = gender)) +
+  geom_col(position = "fill") +
+  coord_flip()
 ```
+]
+.pull-right[
+```{r echo=FALSE}
+authors <- c("shake", "gersh", "cal")
 
-## This presentation is a lie!
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(percentage_female = female/(male+female)) %>%
+  mutate(title = fct_reorder(title, percentage_female)) %>% 
+  select(title, male,female) %>% 
+  pivot_longer(cols = c(male, female), 
+               names_to = "gender", 
+               values_to = "no_of_characters") %>% 
+  ggplot(aes(x = title, 
+             y = no_of_characters,
+             fill = gender)) +
+  geom_col(position = "fill") +
+  coord_flip()
+```
+]
+]
 
-It makes things seem simple.... write a few lines of code and
+.panel[.panel-name[Explanation] 
+
+.pull-left[
+```{r eval=FALSE}
+authors <- c("shake", "gersh", "cal")
+
+dracor_metadata %>% 
+  filter(!name %in% authors) %>% 
+  mutate(percentage_female = female/(male+female)) %>%
+  mutate(title = fct_reorder(title, percentage_female)) %>% 
+  select(title, male,female) %>% 
+  pivot_longer(cols = c(male, female), 
+               names_to = "gender", 
+               values_to = "no_of_characters") %>% 
+  ggplot(aes(x = title, 
+             y = no_of_characters,
+             fill = gender)) +
+  geom_col(position = "fill") +
+  coord_flip()
+```
+]
+.pull-right[
+-  we still use the variable `percentage_female` to transform `title` into ordered factor, but we no longer visualize it
+-   for this visualization, we need only three columns from the dataset `title`, `male`, `female`, which we can separate from the rest using the `select()` function
+-   we are no longer interested in just the percentage of female characters, now we want to see the distribution of both genders
+-  to change the visualization, we again reshape the data by pivoting the table with `pivot_longer()` function
+]
+
+]
+
+]
+
+---
+
+# Final remarks
+
+- the code can get complex quickly, but each step is clearly defined
+- coding is not easy
+  -  when preparing these few lines of code, I frequently consulted documentation or googled "how to..." questions
+- but at every point, you only need to figure out the next step
+-   there are many resources out there!
